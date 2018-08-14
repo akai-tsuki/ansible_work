@@ -1,0 +1,45 @@
+---
+- name: Install Docker
+  hosts: grp_node
+  tasks:
+  - name: Install package needed for docker-ce
+    yum:
+      name: '{{ item }}'
+      state: installed
+    with_items:
+      - "yum-utils"
+      - "device-mapper-persistent-data"
+      - "lvm2"
+
+  - name: Add Docker GPG key.
+    rpm_key:
+      key: https://download.docker.com/linux/centos/gpg
+      state: present
+
+  - name: Check repository
+    tags: test
+    shell: yum repolist enabled
+    args:
+      warn: false
+    register: repolist_info
+    changed_when: false
+
+  - name: debug
+    tags: test
+    debug: 
+      var: repolist_info
+    
+  - name: Add repository, if don't add yet.
+    tags: test
+    shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    when: "'Docker CE Stable' not in repolist_info.stdout"
+    ## You can also perform the following writing.
+    # when: repolist_info.stdout.find('Docker CE Stable') == -1
+
+  - name: Install docker-ce package
+    yum:
+      name: '{{ item }}'
+      state: installed
+    with_items:
+      - "docker-ce"
+

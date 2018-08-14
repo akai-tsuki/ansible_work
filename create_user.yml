@@ -1,0 +1,12 @@
+---
+- name: Create user
+  hosts: grp_node
+  tasks:
+  - name: Execute some commands
+    shell: hostname; id; date
+
+  - name: Add the user
+    user:
+      name: opeuser
+      password: "{{ ope_pass|password_hash('sha512') }}"
+

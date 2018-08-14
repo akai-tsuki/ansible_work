@@ -1,0 +1,4 @@
+[grp_node]
+node01 ansible_host=172.16.10.111 ansible_user=root
+node02 ansible_host=172.16.10.112 ansible_user=root
+node03 ansible_host=172.16.10.113 ansible_user=root

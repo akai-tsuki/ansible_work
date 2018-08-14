@@ -1,0 +1,5 @@
+---
+- name: Install Gitlab (Omnibus package installation)
+  hosts: grp_node
+  roles: 
+    - gitlab

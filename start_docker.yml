@@ -1,0 +1,25 @@
+---
+- name: Start Docker
+  hosts: grp_node
+  tasks:
+  - name: Start docker
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Install pip package
+    yum:
+      name: '{{ item }}'
+      state: installed
+    with_items:
+      - "epel-release"
+      - "python2-pip"
+
+  - name: Install docker python module
+    pip:
+      name: docker 
+
+  - name: Pull docker image
+    docker_image:
+      name: hello-world

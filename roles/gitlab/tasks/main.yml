@@ -1,0 +1,62 @@
+---
+- name: Install the necessary dependencies
+  yum:
+    name: '{{ item }}'
+    state: installed
+  with_items:
+    - "curl"
+    - "policycoreutils-python"
+    - "openssh-server"
+
+- name: Check repository
+  tags: test
+  shell: yum repolist enabled
+  args:
+    warn: false
+  register: repolist_info
+  changed_when: false
+
+- name: debug
+  tags: test
+  debug:
+    var: repolist_info
+
+- name: Get script
+  get_url:
+    url: '{{ gitlab_script_url }}'
+    dest: /tmp/script.rpm.sh
+    mode: 0755
+
+- name: Run script
+  tags: test
+  command: bash script.rpm.sh
+  args:
+    chdir: "/tmp"
+  when: "'gitlab_gitlab' not in repolist_info.stdout"
+
+- name: Install gitlab package
+  yum:
+    name: '{{ item }}'
+    state: installed
+  with_items:
+    - "gitlab-ce"
+  environment:
+    - EXTERNAL_URL: '{{ gitlab_external_url }}'
+
+- name: Set firewall fot http/https (permanent)
+  firewalld:
+    service: '{{ item }}'
+    permanent: true
+    state: enabled
+  with_items:
+    - "http"
+    - "https"
+
+- name: Set firewall fot http/https
+  firewalld:
+    service: '{{ item }}'
+    state: enabled
+  with_items:
+    - "http"
+    - "https"
+
