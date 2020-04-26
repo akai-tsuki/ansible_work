@@ -1,0 +1,39 @@
+---
+- name: Copy Pacemaker repository package to nodes
+  copy:
+#    src: "pacemaker-repo-1.1.21-1.1.el{{ ansible_distribution_major_version }}.x86_64.rpm"
+    src: "pacemaker-repo-1.1.21-1.1.el7.x86_64.rpm"
+    dest: "/tmp/"
+  register: rc_copy
+  check_mode: no
+  tags: test
+
+#- name: test
+#  debug: var=rc_copy
+#  tags: test
+#
+- name: install the repository package
+  yum:
+    name: "{{ rc_copy.dest }}"
+    state: present
+    update_cache: yes
+
+- name: cleanup yum cache
+  command: yum clean all warn=no
+  changed_when: False
+
+- name: install Pacemaker packages
+  yum:
+    name=pacemaker-all
+    state=latest
+
+# This should not be necessary because it's the default status, but
+# make sure it for just in case user had changed the systemd status on RHEL7.
+# On RHEL6, it would be always disabled by restoring pacemaker.combined.conf .
+- name: make sure Pacemaker services are disabled in systemd
+  service: name="{{ item }}" enabled=no
+  with_items:
+    - pacemaker
+    - corosync
+  when: ansible_distribution_major_version == '7'
+

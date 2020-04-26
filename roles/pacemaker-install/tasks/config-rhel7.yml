@@ -1,0 +1,57 @@
+- name: config /etc/sysconfig/pacemaker
+  lineinfile:
+    dest="/etc/sysconfig/pacemaker"
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+    state=present
+    backup=yes
+  with_items:
+    - { regexp: "PCMK_fail_fast=", line: "PCMK_fail_fast=yes" }
+
+- name: copy corosync.service to customize
+  shell: creates=/etc/systemd/system/corosync.service cp -p /usr/lib/systemd/system/corosync.service /etc/systemd/system
+
+- name: configure corosync.service
+  lineinfile:
+    dest="/etc/systemd/system/corosync.service"
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+    state=present
+    backup=yes
+  with_items:
+    - { regexp: "Restart=", line: "Restart=on-failure" }
+    - { regexp: "RestartSec=", line: "RestartSec=70" }
+    - { regexp: "ExecStartPre=", line: "ExecStartPre=/sbin/modprobe softdog" }
+
+- name: copy pacemaker.service to customize
+  shell: creates=/etc/systemd/system/pacemaker.service cp -p /usr/lib/systemd/system/pacemaker.service /etc/systemd/system
+
+- name: configure pacemaker.service
+  lineinfile:
+    dest="/etc/systemd/system/pacemaker.service"
+    regexp="{{ item.regexp }}"
+    line="{{ item.line }}"
+    state=present
+    backup=yes
+  with_items:
+    - { regexp: "killall -TERM corosync", line: "ExecStopPost=/bin/sh -c 'pidof crmd || killall -TERM corosync'" }
+
+### allow communitation ports if firewalld is in use
+- name: check if firewalld is enabled
+  command: firewall-cmd --state
+  changed_when: false
+  failed_when: false
+  register: firewalld_state
+
+- name: allow Pacemaker/Corosync communication through firewalld (permanent)
+  command: firewall-cmd --permanent --add-service=high-availability
+  register: result
+  changed_when: '"ALREADY_ENABLED" not in result.stderr'
+  when: firewalld_state.rc == 0
+
+- name: allow Pacemaker/Corosync communication through firewalld (runtime)
+  command: firewall-cmd --add-service=high-availability
+  register: result
+  changed_when: '"ALREADY_ENABLED" not in result.stderr'
+  when: firewalld_state.rc == 0
+

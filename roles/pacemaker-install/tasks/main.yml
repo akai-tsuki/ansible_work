@@ -1,0 +1,7 @@
+---
+- include: config-centos.yml
+
+- include: pacemaker-install.yml
+- include: corosync-config.yml
+
+- include: config-rhel7.yml
