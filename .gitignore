@@ -116,3 +116,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# RHEL/CentOS package file
+*.rpm
