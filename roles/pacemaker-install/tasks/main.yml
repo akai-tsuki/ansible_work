@@ -1,7 +1,47 @@
 ---
 - include: config-centos.yml
+  tags:
+    - never
+    - install
 
 - include: pacemaker-install.yml
+  tags:
+    - never
+    - install
 - include: corosync-config.yml
+  tags:
+    - never
+    - install
 
 - include: config-rhel7.yml
+  tags:
+    - never
+    - install
+
+- include: start.yml
+  tags:
+    - never
+    - start
+
+- include: wait-start.yml
+  tags:
+    - never
+    - start
+
+- include: load-crm.yml
+  when: inventory_hostname == ansible_play_hosts[0]
+  tags: 
+    - never
+    - load-crm
+
+- include: stop.yml
+  tags:
+    - never
+    - clear-cib
+    - stop
+
+- include: clear-cib.yml
+  tags:
+    - never
+    - clear-cib
+

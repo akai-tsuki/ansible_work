@@ -4,12 +4,15 @@ hacluster:
     vm01:
       ansible_user: centos
       ansible_ssh_private_key_file: /root/.ssh/pm01_rsa
+      node_name: vm01.localdomain
     vm02:
       ansible_user: centos
       ansible_ssh_private_key_file: /root/.ssh/pm01_rsa
+      node_name: vm02.localdomain
     vm03:
       ansible_user: centos
       ansible_ssh_private_key_file: /root/.ssh/pm01_rsa
+      node_name: vm03.localdomain
   vars:
     ## Corosync 通信にユニキャスト通信(udpu)を使用する場合の設定例
     # ユニキャスト通信を使用する場合 udpu を指定します。

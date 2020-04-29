@@ -1,0 +1,15 @@
+- name: Copy crm file for Pacemaker
+  copy:
+    src: dummy.crm
+    dest: /tmp/dummy.crm
+    mode: '0644'
+
+- name: Execute crm_mon
+  shell: "crm_mon -fA1"
+  register: result_crm_mon
+
+- name: Show crm_mon
+  debug: var=result_crm_mon
+
+- name: Load crm file for Pacemaker
+  shell: "crm configure load update /tmp/dummy.crm"

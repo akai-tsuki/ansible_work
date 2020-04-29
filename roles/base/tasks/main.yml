@@ -1,0 +1,8 @@
+---
+- name: Install base packages
+  yum:
+    name: '{{ item }}'
+    state: installed
+  with_items:
+    - "bash-completion"
+    - "chrony"
